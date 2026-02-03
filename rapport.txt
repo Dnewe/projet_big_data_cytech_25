@@ -1,0 +1,17 @@
+
+
+
+j'ai changé le nom du directory "Docker" en "docker" pour permettre au docker-compose de le voir
+
+
+Ex01
+
+
+j'ai changé le nom du bucket de nyc_raw à nyc-raw car MinIO n'accepte pas les "_"
+
+1er essai
+pour télécharger je créé d'abord un fichier temporaire contenant le parquet puis je le lis avec spark. 
+J'ai tenté de lire l'url depuis spark sans écrire de fichier temporaire sans succès
+
+2e essai
+utilisation de hadoop file system pour envoyer les données directement sans fichier temporaire

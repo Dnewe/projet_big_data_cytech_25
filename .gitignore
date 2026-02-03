@@ -39,6 +39,10 @@ build/
 
 ### VS Code ###
 .vscode/
+.metals/
+*.bloop
+*metals.sbt 
+*build.properties
 
 ### Mac OS ###
 .DS_Store
