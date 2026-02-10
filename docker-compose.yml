@@ -79,6 +79,25 @@ services:
     networks:
       - spark-network
 
+  postgres:
+    image: postgres:15-alpine
+    container_name: nyc-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=nyc_warehouse
+    volumes:
+      - ./ex03_sql_table_creation/creation.sql:/docker-entrypoint-initdb.d/creation.sql
+      - ./ex03_sql_table_creation/insertion.sql:/docker-entrypoint-initdb.d/insertion.sql
+      - postgres_data:/var/lib/postgresql/data
+
+
+
 networks:
   spark-network:
     driver: bridge
+
+volumes:
+  postgres_data:
