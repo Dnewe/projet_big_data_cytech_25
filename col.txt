@@ -1,0 +1,32 @@
+ |-- VendorID: integer (nullable = true) Fact
+ |-- tpep_pickup_datetime: timestamp_ntz (nullable = true) TIME
+ |-- tpep_dropoff_datetime: timestamp_ntz (nullable = true) TIME
+ |-- passenger_count: long (nullable = true) Fact
+ |-- trip_distance: double (nullable = true) Fact
+ |-- RatecodeID: long (nullable = true) IDK
+ |-- store_and_fwd_flag: string (nullable = true) Fact
+ |-- PULocationID: integer (nullable = true) LOCATION
+ |-- DOLocationID: integer (nullable = true) LOCATION
+ |-- payment_type: long (nullable = true) Payment
+ |-- fare_amount: double (nullable = true) FACT
+ |-- extra: double (nullable = true) FACT
+ |-- mta_tax: double (nullable = true) FACT
+ |-- tip_amount: double (nullable = true) FACT
+ |-- tolls_amount: double (nullable = true) péage FACT
+ |-- improvement_surcharge: double (nullable = true) FACT
+ |-- total_amount: double (nullable = true) FACT
+ |-- congestion_surcharge: double (nullable = true) FACT
+ |-- Airport_fee: double (nullable = true) FACT
+ 
+ 
+ Part 3 : 
+ 	-flocon
+ 	-centre : 
+ 	fare_amount (cout totale en gros)
+ 	trip_distance 
+ 	ajouter un id 
+ 	
+3 parts :
+principal
+location     ====> stars not flake gemini says add another parts in location
+time
