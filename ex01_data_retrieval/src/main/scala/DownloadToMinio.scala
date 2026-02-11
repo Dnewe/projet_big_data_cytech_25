@@ -40,9 +40,9 @@ object DownloadToMinio extends App {
   val urlPrefix = "https://d37ci6vzurychx.cloudfront.net/trip-data/"
   val tempDirPath = "..data/external/"
   val minioDirPath = "s3a://nyc-raw/"
-
-  val years = (2022 to 2025).toList
-  val months = (1 to 12).toList
+// J'ai laissé que 1 mois et une année pcq cloudfare bloquait les dl au bout d'un moment ...
+  val years = (2025 to 2025).toList
+  val months = (11 to 11).toList
 
   for (y <- years) {
     for (m <- months) {
@@ -56,7 +56,9 @@ object DownloadToMinio extends App {
         // solution from: https://stackoverflow.com/questions/11302727/server-returning-403-for-url-openstream, useless??
         val conn = new URL(url).openConnection().asInstanceOf[HttpURLConnection]
         conn.setRequestMethod("GET")
-        conn.setRequestProperty("User-Agent", "Mozilla/5.0")
+        conn.setRequestProperty("Accept", "*/*")
+        conn.setRequestProperty("Connection", "keep-alive")
+        conn.setRequestProperty("User-Agent", "Mozilla/4.0 (Windows NT 10.0; Win64; x64)")
         conn.setConnectTimeout(10_000)
         conn.setReadTimeout(60_000)
 
