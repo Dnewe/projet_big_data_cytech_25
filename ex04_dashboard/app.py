@@ -304,3 +304,5 @@ elif menu == "datascientist":
     st.write(
         f"En moyenne, les taxes et frais représentent **{100 - df_profit['taux_marge'].mean():.1f}%** du prix de la course.")
     st.write("On a fait le test de mettre des graphiques qui le représentait mais c'était pas très intéressant")
+
+
