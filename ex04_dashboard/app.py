@@ -30,13 +30,13 @@ def get_data(query):
 def test_geojson_local():
     """Attempt to load a local GeoJSON file and check its validity."""
     try:
-        with open("geoson.geojson", "r") as f:
+        with open("../data/streamlit/New_York_map.geojson", "r") as f:
             data = json.load(f)
         return data, "Succès : Le fichier est valide !"
     except json.JSONDecodeError as e:
         return None, f"Erreur de lecture : {e}"
     except FileNotFoundError:
-        return None, "Erreur : Le fichier nyc_zones.geojson n'est pas trouvé."
+        return None, "No file"
 
 
 # --- SIDEBAR ---

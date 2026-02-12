@@ -17,8 +17,8 @@ model = artifacts['model']
 @st.cache_data
 def load_geo_data():
     """Load GeoJSON and taxi zone lookup data."""
-    gdf = gpd.read_file("geoson.geojson")
-    lookup_df = pd.read_csv("taxi_zone_lookup.csv")
+    gdf = gpd.read_file("../data/streamlit/New_York_map.geojson")
+    lookup_df = pd.read_csv("../data/streamlit/taxi_zone_lookup.csv")
     return gdf, lookup_df
 
 
