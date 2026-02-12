@@ -32,7 +32,7 @@ insert into Dim_borough (borough_id, borough_name) VALUES
     (6,'Staten Island'),
     (7,'Unknow');
 
-    INSERT INTO Dim_Location (location_id, zone_name, service_zone, borough_id) VALUES
+INSERT INTO Dim_Location (location_id, zone_name, service_zone, borough_id) VALUES
     (1, 'Newark Airport', 'EWR', 3), (2, 'Jamaica Bay', 'Boro Zone', 5), (3, 'Allerton/Pelham Gardens', 'Boro Zone', 1),
     (4, 'Alphabet City', 'Yellow Zone', 4), (5, 'Arden Heights', 'Boro Zone', 6), (6, 'Arrochar/Fort Wadsworth', 'Boro Zone', 6),
     (7, 'Astoria', 'Boro Zone', 5), (8, 'Astoria Park', 'Boro Zone', 5), (9, 'Auburndale', 'Boro Zone', 5),

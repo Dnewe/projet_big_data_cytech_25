@@ -12,6 +12,10 @@ key = "minio"
 secret = "minio123"
 bucket = "nyc-raw-branch-1"
 file = "data"
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent
+MODEL_PATH = BASE_DIR / "../models"
 
 
 def load_minio():
@@ -41,20 +45,15 @@ def preprocess(df):
 
     """
     df = df.copy()
-    df = df[
-        (df['trip_distance'] > 0) &
-        df['trip_distance'].notnull() &
-        (df['total_amount'] > 0) &
-        (df['tpep_dropoff_datetime'] -
-         df['tpep_pickup_datetime']).dt.total_seconds() > 0 &
-        (df['DOLocationID'] < 264) &
-        (df['PULocationID'] < 264)
-        ]
 
     df["hour"] = df['tpep_pickup_datetime'].dt.hour
     df["day"] = df['tpep_pickup_datetime'].dt.day_of_week
     df["duration"] = (df['tpep_dropoff_datetime'] - df[
         'tpep_pickup_datetime']).dt.total_seconds() / 60
+
+    # On a que 3 apparition de groupride donc on
+    # le passe dans autre
+    df['RatecodeID'] = df['RatecodeID'].replace(6, 99)
 
     features = [
         "hour", "day", "duration", "PULocationID", "DOLocationID",
@@ -111,11 +110,11 @@ def train():
     artifacts = {
         "model": model,
         "dtypes": X_train.dtypes,
-        "columns": X_train.columns.tolist()  # Pour garantir l'ordre
+        "columns": X_train.columns.tolist()
     }
 
-    joblib.dump(artifacts, "model.pkl")
-    print("Saved model to mdoels/model.pkl")
+    joblib.dump(artifacts, MODEL_PATH/"nyc_taxi_model_notips.pkl")
+    print("Saved model to mdoels/nyc_taxi_model_notips.pkl")
 
 
 if __name__ == "__main__":

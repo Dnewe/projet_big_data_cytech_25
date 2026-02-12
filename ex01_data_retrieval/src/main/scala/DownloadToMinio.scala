@@ -48,7 +48,7 @@ object DownloadToMinio extends App {
     for (m <- months) {
       // get paths
       val fileName = getParquetFileName(y)(m)
-      val url = urlPrefix + fileName  //"../data/raw/yellow_tripdata_2025-01.parquet"
+      val url = urlPrefix + fileName  //"yellow_tripdata_2025-11.parquet"
       val targetPath = new Path(minioDirPath + fileName)
       val fs = targetPath.getFileSystem(hadoopConf)
       // download
@@ -74,15 +74,6 @@ object DownloadToMinio extends App {
 
         in.close()
         out.close()
-        //val bytes = new URL(url).openStream().readAllBytes()
-        //val tmp = Files.createTempFile("tmp_nyc_data", ".parquet")
-        //Files.write(tmp, bytes)
-        //// read
-        //val df = spark.read.parquet(tmp.toString())
-        //// write
-        //df.write.mode("overwrite").parquet(targetPath)
-        //// clean
-        //Files.delete(tmp)
         println("uploaded " + fileName + " to minio")
       } catch {
         case e: Exception => 

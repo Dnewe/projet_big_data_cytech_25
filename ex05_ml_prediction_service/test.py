@@ -1,8 +1,10 @@
 import joblib
 import pandas as pd
+from pathlib import Path
 
-MODEL_PATH = "model.pkl"
 
+BASE_DIR = Path(__file__).parent
+MODEL_PATH = BASE_DIR/"../models/nyc_taxi_model_notips.pkl"
 
 def load_model():
     """Load the model artifacts from a pickle file."""
@@ -70,8 +72,8 @@ def check_data(X):
         'VendorID': int,
         'trip_distance': float
     }
-    valid_vendors_id = [1, 2, 6, 7]
-    valid_ratecode_id = [1, 2, 3, 4, 5, 6, 99]
+    valid_vendors_id = [1, 2]
+    valid_ratecode_id = [1, 2, 3, 4, 5, 99]
 
     for key, value in X.items():
         # 1. Vérification des types
@@ -97,7 +99,7 @@ def check_data(X):
         if key == 'RatecodeID' and value not in valid_ratecode_id:
             raise ValueError(f"RatecodeID oit être dans {valid_ratecode_id}")
 
-        if key == 'passenger_count' and not (0 <= value <= 7):
+        if key == 'passenger_count' and not (1 <= value <= 7):
             raise ValueError("Le nombre de passagers doit être entre 0 et 7.")
 
         if key in ['duration', 'trip_distance'] and value < 0:
@@ -117,6 +119,6 @@ if __name__ == "__main__":
         check_data(X)
         artifact = load_model()
         x = inferencence(X, artifact)
-        print(x)
+        print(f"resulats : {x[0]:.2f $}")
     except Exception as e:
         print(e)

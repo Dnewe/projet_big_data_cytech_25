@@ -73,30 +73,31 @@ object Branch2 extends App {
     .withColumn("quarter", quarter($"full_datetime"))
 
   try {
-    println("Début de l'ingestion dans PostgreSQL...")
+    println("Debut de l'insertion sql")
     //println(s"Lignes à insérer dans Dim_Time : ${dimTimeDF.count()}")
     //println(s"Lignes à insérer dans Fact_Trips : ${cleanedDF.count()}")
 
 
 
+    cleanedDF.write
+      .mode(SaveMode.Overwrite)
+      .jdbc(jdbcUrl, "fact_trips", connectionProperties)
+    println("- Table Fact_Trips mise à jour.")
 
     dimTimeDF.write
-      .mode(SaveMode.Append)
+      .mode(SaveMode.Overwrite)
       .jdbc(jdbcUrl, "dim_time", connectionProperties)
     println("- Table Dim_Time mise à jour.")
 
 
 
-    cleanedDF.write
-      .mode(SaveMode.Append)
-      .jdbc(jdbcUrl, "fact_trips", connectionProperties)
-    println("- Table Fact_Trips mise à jour.")
 
-    println("Succès : Ingestion Branche 2 terminée.")
+
+    println("Fin.")
 
   } catch {
     case e: Exception =>
-      println(s"ERREUR lors de l'ingestion : ${e.getMessage}")
+      println(s"ERREUR lors de l'integration en sql : ${e.getMessage}")
       e.printStackTrace()
   } finally {
     spark.stop()

@@ -5,6 +5,7 @@ import requests
 import streamlit as st
 from shapely.geometry import Point
 from streamlit_folium import st_folium
+from pathlib import Path
 from test import load_model, inferencence
 
 # Configuration of the page
@@ -13,12 +14,16 @@ st.set_page_config(page_title="Template", layout="wide")
 artifacts = load_model()
 model = artifacts['model']
 
+BASE_DIR = Path(__file__).parent
+GDF_PATH = BASE_DIR / "../data/streamlit/New_York_map.geojson"
+LOOKUP_PATH = BASE_DIR / "../data/streamlit/taxi_zone_lookup.csv"
+
 
 @st.cache_data
 def load_geo_data():
     """Load GeoJSON and taxi zone lookup data."""
-    gdf = gpd.read_file("../data/streamlit/New_York_map.geojson")
-    lookup_df = pd.read_csv("../data/streamlit/taxi_zone_lookup.csv")
+    gdf = gpd.read_file(GDF_PATH)
+    lookup_df = pd.read_csv(LOOKUP_PATH)
     return gdf, lookup_df
 
 
@@ -89,11 +94,10 @@ st.sidebar.header("Paramètre")
 
 rate_mapping = {
     1: "Standard", 2: "JFK", 3: "Newark", 4: "Nassau/Westchester",
-    5: "Negotiated fare", 6: "Group ride", 99: "Unknown"
+    5: "Negotiated fare", 99: "Unknown"
 }
 vendor_mapping = {
-    1: "Creative Mobile Technologies", 2: "Curb Mobility",
-    6: "Myle Technologies Inc", 7: "Helix"
+    1: "Creative Mobile Technologies", 2: "Curb Mobility"
 }
 day_mapping = {
     1: "Lundi", 2: "Mardi", 3: "Mercredi", 4: "Jeudi",
