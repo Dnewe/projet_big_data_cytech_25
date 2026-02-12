@@ -216,7 +216,7 @@ elif menu == "Analyse Geographique":
         st.error(f"Erreur GeoJSON : {message}")
 
 elif menu == "other":
-    # 1. On reprend tes options de calcul (Revenu, Tips, etc.)
+
     options = {
         "Revenu total": {"col": "SUM(f.total_amount)", "label": "Revenu Total"},
         "Revenu moyen": {"col": "AVG(f.total_amount)", "label": "Revenu Moyen"},
@@ -230,7 +230,6 @@ elif menu == "other":
     metric_sql = options[selection]["col"]
     label_titre = options[selection]["label"]
 
-    # --- ANALYSE PAR TYPE DE TARIF ---
     st.subheader(f"{label_titre} par Type de Tarif")
     query_rate = f"""
                  SELECT r.description, {metric_sql} as value

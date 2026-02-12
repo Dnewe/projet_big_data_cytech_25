@@ -56,7 +56,7 @@ object idk extends App {
   println(s"test ${test.show()}")
   println(s"test ${test.select("total_amount","trip_distance","passenger_count").show}")
 
-  val outputPath = "s3a://nyc-raw-branch-1/test"
+  val outputPath = "s3a://nyc-raw-branch-1/data"
 
 
   //keep overwrute in dev but not in prod

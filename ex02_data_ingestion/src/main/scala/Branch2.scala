@@ -26,7 +26,7 @@ object Branch2 extends App {
   import spark.implicits._
   spark.sparkContext.setLogLevel("ERROR")
 
-  val inputPath = "s3a://nyc-raw-branch-1/test"
+  val inputPath = "s3a://nyc-raw-branch-1/data"
   val dataDF = spark.read.parquet(inputPath)
 
   val jdbcUrl = "jdbc:postgresql://localhost:5432/nyc_warehouse"
