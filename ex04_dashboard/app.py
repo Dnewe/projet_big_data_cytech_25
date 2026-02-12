@@ -1,24 +1,34 @@
-import streamlit as st
-import pandas as pd
 import json
+import numpy as np
 import plotly.express as px
-import requests
+import streamlit as st
 
-# Configuration de la page
+# Configuration of the page
 st.set_page_config(page_title="tamplate streamlit", layout="wide")
 
-# --- CONNEXION ---
+# --- CONNECTION ---
 conn = st.connection("my_db", type="sql")
 
 
 @st.cache_data(ttl=600)
 def get_data(query):
-    """Fonction unique pour executer les requetes SQL"""
+    """Execute a SQL query and return the results as a DataFrame.
+
+    Parameters
+    ----------
+    query : str
+        The SQL query string to be executed.
+
+    Returns
+    -------
+
+    """
     return conn.query(query)
 
 
 @st.cache_data
 def test_geojson_local():
+    """Attempt to load a local GeoJSON file and check its validity."""
     try:
         with open("geoson.geojson", "r") as f:
             data = json.load(f)
@@ -26,25 +36,27 @@ def test_geojson_local():
     except json.JSONDecodeError as e:
         return None, f"Erreur de lecture : {e}"
     except FileNotFoundError:
-        return None, "Erreur : Le fichier nyc_zones.geojson n'est pas dans le dossier."
+        return None, "Erreur : Le fichier nyc_zones.geojson n'est pas trouvé."
 
 
 # --- SIDEBAR ---
 with st.sidebar:
     st.title("Navigation")
-    menu = st.radio("Sections",
-                    ["Vue d'ensemble", "Analyse Temporelle", "Analyse Geographique", "other", "datascientist"])
+    menu = st.radio(
+        "Sections",
+        ["Vue d'ensemble", "Analyse Temporelle",
+         "Analyse Geographique", "other", "datascientist"]
+    )
     st.markdown("---")
-
 
 if menu == "Vue d'ensemble":
     st.header("Indicateurs cles de performance")
 
     query_kpi = """
-                SELECT COUNT(*)           as total_trips, \
-                       AVG(total_amount)  as avg_fare, \
+                SELECT COUNT(*)           as total_trips,
+                       AVG(total_amount)  as avg_fare,
                        AVG(trip_distance) as avg_distance
-                FROM fact_trips \
+                FROM fact_trips
                 """
     df_kpi = get_data(query_kpi)
 
@@ -60,9 +72,10 @@ elif menu == "Analyse Temporelle":
     query_time = """
                  SELECT t.hour, COUNT(*) as nb_trips
                  FROM fact_trips f
-                          JOIN dim_time t ON f.tpep_pickup_datetime = t.full_datetime
-                 GROUP BY t.hour \
-                 ORDER BY t.hour \
+                          JOIN dim_time t
+                               ON f.tpep_pickup_datetime = t.full_datetime
+                 GROUP BY t.hour
+                 ORDER BY t.hour
                  """
     df_time = get_data(query_time)
 
@@ -73,35 +86,39 @@ elif menu == "Analyse Temporelle":
     query_rev_time = """
                      SELECT t.hour, SUM(f.total_amount) as revenue
                      FROM fact_trips f
-                              JOIN dim_time t ON f.tpep_pickup_datetime = t.full_datetime
-                     GROUP BY t.hour \
-                     ORDER BY t.hour \
+                              JOIN dim_time t
+                                   ON f.tpep_pickup_datetime = t.full_datetime
+                     GROUP BY t.hour
+                     ORDER BY t.hour
                      """
     df_rev_time = get_data(query_rev_time)
     st.area_chart(df_rev_time, x="hour", y="revenue")
 
     st.subheader("Rentabilité horaire moyenne ($/min)")
     query_renta = """
-                  SELECT t.hour, \
-                         AVG(f.total_amount / \
-                             NULLIF(EXTRACT(EPOCH FROM (f.tpep_dropoff_datetime - f.tpep_pickup_datetime)) / 60, \
+                  SELECT t.hour,
+                         AVG(f.total_amount /
+                             NULLIF(EXTRACT(EPOCH FROM
+                                            (f.tpep_dropoff_datetime -
+                                             f.tpep_pickup_datetime)) / 60,
                                     0)) as renta
                   FROM fact_trips f
-                           JOIN dim_time t ON f.tpep_pickup_datetime = t.full_datetime
+                           JOIN dim_time t
+                                ON f.tpep_pickup_datetime = t.full_datetime
                   WHERE f.total_amount > 0
                     AND f.tpep_dropoff_datetime > f.tpep_pickup_datetime
                   GROUP BY t.hour
-                  ORDER BY t.hour \
+                  ORDER BY t.hour
                   """
     df_renta = get_data(query_renta)
     st.line_chart(df_renta, x="hour", y="renta")
 
     query_revenue_day = """
-                        SELECT TO_CHAR(f.tpep_pickup_datetime, 'Day') as day_name, \
-                               AVG(f.total_amount)                    as total_revenue
+                        SELECT TO_CHAR(f.tpep_pickup_datetime, 'Day')
+                                                   as day_name,
+                               AVG(f.total_amount) as total_revenue
                         FROM fact_trips f
-                        GROUP BY day_name \
-
+                        GROUP BY day_name
                         """
     df_day = get_data(query_revenue_day)
 
@@ -110,12 +127,15 @@ elif menu == "Analyse Temporelle":
 
 elif menu == "Analyse Geographique":
 
-
     options = {
-        "Revenu total": {"col": "SUM(f.total_amount)", "label": "Revenu Total"},
-        "Revenu moyen": {"col": "AVG(f.total_amount)", "label": "Revenu Moyen"},
-        "tips total": {"col": "SUM(f.tip_amount)", "label": "Total des Pourboires"},
-        "tips moyen": {"col": "AVG(f.tip_amount)", "label": "Pourboire Moyen"}
+        "Revenu total": {"col": "SUM(f.total_amount)",
+                         "label": "Total Revenue"},
+        "Revenu moyen": {"col": "AVG(f.total_amount)",
+                         "label": "Avg Revenue"},
+        "tips total": {"col": "SUM(f.tip_amount)",
+                       "label": "Total Tips"},
+        "tips moyen": {"col": "AVG(f.tip_amount)",
+                       "label": "Average Tip"}
     }
 
     col_sel1, col_sel2, col_sel3 = st.columns(3)
@@ -126,18 +146,20 @@ elif menu == "Analyse Geographique":
         label_titre = options[selection]["label"]
 
     with col_sel2:
-        flux_type = st.radio("Type de flux", ["Départ (Pickup)", "Arrivée (Dropoff)"])
+        flux_type = st.radio("Type de flux",
+                             ["Départ (Pickup)", "Arrivée (Dropoff)"])
         loc_col = "pulocationid" if "Départ" in flux_type else "dolocationid"
 
     with col_sel3:
-        view_level = st.radio("Niveau de détail", ["Zone", "Quartier (Borough)"])
+        view_level = st.radio("Niveau de détail",
+                              ["Zone", "Quartier (Borough)"])
 
     st.header(f"Analyse : {label_titre} par {view_level}")
 
     query_borough = f"""
-        SELECT 
-            b.borough_name, 
-            COUNT(*) as volume, 
+        SELECT
+            b.borough_name,
+            COUNT(*) as volume,
             {metric_sql} as selected_metric
         FROM fact_trips f
         JOIN dim_location l ON f.{loc_col} = l.location_id
@@ -156,9 +178,9 @@ elif menu == "Analyse Geographique":
         st.bar_chart(df_borough, x="borough_name", y="selected_metric")
 
     query_map = f"""
-            SELECT 
-                l.location_id, 
-                l.zone_name, 
+            SELECT
+                l.location_id,
+                l.zone_name,
                 b.borough_name,
                 b.borough_id,
                 COUNT(*) as nb_trajets,
@@ -176,10 +198,10 @@ elif menu == "Analyse Geographique":
     geojson_data, message = test_geojson_local()
 
     if geojson_data:
-        import numpy as np
-
         if view_level == "Quartier (Borough)":
-            df_map['valeur_affichage'] = df_map.groupby('borough_name')['metric_couleur'].transform('sum')
+            df_map['valeur_affichage'] = df_map.groupby(
+                'borough_name'
+            )['metric_couleur'].transform('sum')
             hover_name = "borough_name"
         else:
             df_map['valeur_affichage'] = df_map['metric_couleur']
@@ -218,15 +240,20 @@ elif menu == "Analyse Geographique":
 elif menu == "other":
 
     options = {
-        "Revenu total": {"col": "SUM(f.total_amount)", "label": "Revenu Total"},
-        "Revenu moyen": {"col": "AVG(f.total_amount)", "label": "Revenu Moyen"},
-        "tips total": {"col": "SUM(f.tip_amount)", "label": "Total des Pourboires"},
-        "tips moyen": {"col": "AVG(f.tip_amount)", "label": "Pourboire Moyen"}
+        "Revenu total": {"col": "SUM(f.total_amount)",
+                         "label": "Total Revenue"},
+        "Revenu moyen": {"col": "AVG(f.total_amount)",
+                         "label": "Avg Revenue"},
+        "tips total": {"col": "SUM(f.tip_amount)",
+                       "label": "Total Tips"},
+        "tips moyen": {"col": "AVG(f.tip_amount)",
+                       "label": "Average Tip"}
     }
 
     st.header("Analyses par Dimensions")
 
-    selection = st.selectbox("Choisir l'indicateur à mesurer :", list(options.keys()))
+    selection = st.selectbox("Choisir l'indicateur à mesurer :",
+                             list(options.keys()))
     metric_sql = options[selection]["col"]
     label_titre = options[selection]["label"]
 
@@ -244,7 +271,7 @@ elif menu == "other":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader(f"Par Vendeur")
+        st.subheader("Par Vendeur")
         query_vendor = f"""
                        SELECT v.vendor_name, {metric_sql} as value
                        FROM Fact_Trips f
@@ -256,7 +283,7 @@ elif menu == "other":
         st.bar_chart(df_vendor, x="vendor_name", y="value")
 
     with col2:
-        st.subheader(f"Par Mode de Paiement")
+        st.subheader("Par Mode de Paiement")
         query_pay = f"""
                     SELECT p.payment_type, {metric_sql} as value
                     FROM Fact_Trips f
@@ -272,9 +299,13 @@ elif menu == "datascientist":
     st.write("Corrélation des variables numériques")
 
     query_corr = """
-                 SELECT passenger_count, trip_distance, fare_amount, tip_amount, total_amount
+                 SELECT passenger_count,
+                        trip_distance,
+                        fare_amount,
+                        tip_amount,
+                        total_amount
                  FROM fact_trips
-                 LIMIT 5000 -- On limite pour la performance  \
+                 LIMIT 5000
                  """
     df_corr = get_data(query_corr).corr()
 
@@ -284,24 +315,26 @@ elif menu == "datascientist":
         zmin=-1, zmax=1
     )
     st.plotly_chart(fig_corr, use_container_width=True)
-
     st.subheader("Analyse du bénéfice")
 
     query_profit = """
-                   SELECT AVG(f.total_amount)                                                                 as tot,
-                          AVG(f.total_amount - (f.mta_tax + f.improvement_surcharge + f.congestion_surcharge +
-                                                f.Airport_fee))                                               as benefice_moyen
+                   SELECT AVG(f.total_amount) as tot, \
+                          AVG(f.total_amount - ( \
+                              f.mta_tax + \
+                              f.improvement_surcharge + \
+                              f.congestion_surcharge + \
+                              f.Airport_fee \
+                              ))              as benefice_moyen
                    FROM Fact_Trips f
-                            JOIN Dim_Time t ON f.tpep_pickup_datetime = t.full_datetime
-
+                            JOIN Dim_Time t \
+                                 ON f.tpep_pickup_datetime = t.full_datetime \
                    """
     df_profit = get_data(query_profit)
 
-    # taux de marge
-    df_profit['taux_marge'] = (df_profit['benefice_moyen'] / df_profit['tot']) * 100
+    # Margin rate calculation
+    df_profit['taux_marge'] = (df_profit['benefice_moyen'] /
+                               df_profit['tot']) * 100
 
-    st.write(
-        f"En moyenne, les taxes et frais représentent **{100 - df_profit['taux_marge'].mean():.1f}%** du prix de la course.")
-    st.write("On a fait le test de mettre des graphiques qui le représentait mais c'était pas très intéressant")
-
-
+    marge_val = 100 - df_profit['taux_marge'].mean()
+    st.write(f"En moyenne, les taxes et frais représentent "
+             f"**{marge_val:.1f}%** du prix de la course.")

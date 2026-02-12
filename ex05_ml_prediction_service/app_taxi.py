@@ -1,25 +1,44 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-from test import load_model, inferencence
-from shapely.geometry import Point
-import geopandas as gpd
-from streamlit_folium import st_folium
 import folium
+import geopandas as gpd
+import pandas as pd
 import requests
+import streamlit as st
+from shapely.geometry import Point
+from streamlit_folium import st_folium
+from test import load_model, inferencence
 
+# Configuration of the page
 st.set_page_config(page_title="Template", layout="wide")
 
 artifacts = load_model()
 model = artifacts['model']
 
+
 @st.cache_data
 def load_geo_data():
+    """Load GeoJSON and taxi zone lookup data."""
     gdf = gpd.read_file("geoson.geojson")
     lookup_df = pd.read_csv("taxi_zone_lookup.csv")
     return gdf, lookup_df
 
+
 def location_id(lon, lat, geojson):
+    """Identify the taxi zone ID and names based on coordinates.
+
+    Parameters
+    ----------
+    lon : float
+        Longitude of the point.
+    lat : float
+        Latitude of the point.
+    geojson : geopandas.GeoDataFrame
+        The GeoJSON data containing zone geometries.
+
+    Returns
+    -------
+
+
+    """
     point = Point(lon, lat)
     match = geojson[geojson.geometry.contains(point)]
     if not match.empty:
@@ -27,8 +46,27 @@ def location_id(lon, lat, geojson):
         return result['locationid'], result['zone'], result['borough']
     return 264, "Unknown", "Unknown"
 
+
 def get_route_distanc(lat1, lon1, lat2, lon2):
-    url = f"http://router.project-osrm.org/route/v1/driving/{lon1},{lat1};{lon2},{lat2}?overview=false"
+    """Retrieve route distance and duration from OSRM API.
+
+    Parameters
+    ----------
+    lat1 : float
+        Latitude of departure point.
+    lon1 : float
+        Longitude of departure point.
+    lat2 : float
+        Latitude of arrival point.
+    lon2 : float
+        Longitude of arrival point.
+
+    Returns
+    -------
+
+    """
+    url = (f"http://router.project-osrm.org/route/v1/driving/"
+           f"{lon1},{lat1};{lon2},{lat2}?overview=false")
     try:
         r = requests.get(url)
         data = r.json()
@@ -41,6 +79,7 @@ def get_route_distanc(lat1, lon1, lat2, lon2):
         print(f"Erreur : {e}")
     return None, None
 
+
 geo_df, lookup_df = load_geo_data()
 
 st.title("Template : Titre Principal")
@@ -48,19 +87,43 @@ st.markdown("---")
 
 st.sidebar.header("Paramètre")
 
-rate_mapping = {1: "Standard", 2: "JFK", 3: "Newark", 4: "Nassau/Westchester", 5: "Negotiated fare", 6: "Group ride", 99: "Unknown"}
-vendor_mapping = {1: "Creative Mobile Technologies", 2: "Curb Mobility", 6: "Myle Technologies Inc", 7: "Helix"}
-day_mapping = {1: "Lundi", 2: "Mardi", 3: "Mercredi", 4: "Jeudi", 5: "Vendredi", 6: "Samedi", 7: "Dimanche"}
+rate_mapping = {
+    1: "Standard", 2: "JFK", 3: "Newark", 4: "Nassau/Westchester",
+    5: "Negotiated fare", 6: "Group ride", 99: "Unknown"
+}
+vendor_mapping = {
+    1: "Creative Mobile Technologies", 2: "Curb Mobility",
+    6: "Myle Technologies Inc", 7: "Helix"
+}
+day_mapping = {
+    1: "Lundi", 2: "Mardi", 3: "Mercredi", 4: "Jeudi",
+    5: "Vendredi", 6: "Samedi", 7: "Dimanche"
+}
 
-ratecodeID = st.sidebar.selectbox("RatecodeID", options=list(rate_mapping.keys()), format_func=lambda x: rate_mapping[x])
-vendorID = st.sidebar.selectbox("VendorID", options=list(vendor_mapping.keys()), format_func=lambda x: vendor_mapping[x])
-day = st.sidebar.selectbox("Day", options=list(day_mapping.keys()), format_func=lambda x: day_mapping[x])
+ratecodeID = st.sidebar.selectbox(
+    "RatecodeID", options=list(rate_mapping.keys()),
+    format_func=lambda x: rate_mapping[x]
+)
+vendorID = st.sidebar.selectbox(
+    "VendorID", options=list(vendor_mapping.keys()),
+    format_func=lambda x: vendor_mapping[x]
+)
+day = st.sidebar.selectbox(
+    "Day", options=list(day_mapping.keys()),
+    format_func=lambda x: day_mapping[x]
+)
 
-passenger_count = st.sidebar.number_input("Passenger count", min_value=0, max_value=7, step=1)
-hour = st.sidebar.number_input("Hour", min_value=0, max_value=24, step=1)
+passenger_count = st.sidebar.number_input(
+    "Passenger count", min_value=0, max_value=7, step=1
+)
+hour = st.sidebar.number_input(
+    "Hour", min_value=0, max_value=24, step=1
+)
 
-if 'trip_dist' not in st.session_state: st.session_state.trip_dist = 0.0
-if 'trip_duration' not in st.session_state: st.session_state.trip_duration = 0.0
+if 'trip_dist' not in st.session_state:
+    st.session_state.trip_dist = 0.0
+if 'trip_duration' not in st.session_state:
+    st.session_state.trip_duration = 0.0
 
 X = {
     'hour': hour, 'day': day, 'duration': st.session_state.trip_duration,
@@ -75,17 +138,32 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader("Sélection du trajet")
 
-    if 'dep' not in st.session_state: st.session_state.dep = [40.7128, -74.0060]
-    if 'arr' not in st.session_state: st.session_state.arr = [40.7580, -73.9855]
+    if 'dep' not in st.session_state:
+        st.session_state.dep = [40.7128, -74.0060]
+    if 'arr' not in st.session_state:
+        st.session_state.arr = [40.7580, -73.9855]
 
-    mode = st.radio("Cliquer sur la carte pour placer :", ["Le Départ", "L'Arrivée"], horizontal=True)
+    mode = st.radio(
+        "Cliquer sur la carte pour placer :",
+        ["Le Départ", "L'Arrivée"],
+        horizontal=True
+    )
 
     m = folium.Map(location=st.session_state.dep, zoom_start=12)
 
-    folium.Marker(st.session_state.dep, popup="Départ", icon=folium.Icon(color="green")).add_to(m)
-    folium.Marker(st.session_state.arr, popup="Arrivée", icon=folium.Icon(color="red")).add_to(m)
+    folium.Marker(
+        st.session_state.dep, popup="Départ",
+        icon=folium.Icon(color="green")
+    ).add_to(m)
+    folium.Marker(
+        st.session_state.arr, popup="Arrivée",
+        icon=folium.Icon(color="red")
+    ).add_to(m)
 
-    map_data = st_folium(m, height=450, width=None, key="main_map", returned_objects=["last_clicked"])
+    map_data = st_folium(
+        m, height=450, width=None, key="main_map",
+        returned_objects=["last_clicked"]
+    )
 
     if map_data and map_data.get("last_clicked"):
         new_lat = map_data["last_clicked"]["lat"]
@@ -99,8 +177,12 @@ with col1:
 
     st.markdown("---")
 
-    id_dep, zone_dep, boroygh_dep = location_id(st.session_state.dep[1], st.session_state.dep[0], geo_df)
-    id_arr, zone_arr, borough_arr = location_id(st.session_state.arr[1], st.session_state.arr[0], geo_df)
+    id_dep, zone_dep, boroygh_dep = location_id(
+        st.session_state.dep[1], st.session_state.dep[0], geo_df
+    )
+    id_arr, zone_arr, borough_arr = location_id(
+        st.session_state.arr[1], st.session_state.arr[0], geo_df
+    )
 
     X['PULocationID'] = id_dep
     X['DOLocationID'] = id_arr
@@ -116,7 +198,8 @@ with col2:
 
     manual_mode = st.checkbox("Mode manuel", value=False)
 
-    if st.button("Calculer les zones", use_container_width=True, type="primary"):
+    if st.button("Calculer les zones", use_container_width=True,
+                 type="primary"):
         dist_api, time_api = get_route_distanc(
             st.session_state.dep[0], st.session_state.dep[1],
             st.session_state.arr[0], st.session_state.arr[1]
@@ -130,8 +213,12 @@ with col2:
 
     if manual_mode:
         c1, c2 = st.columns(2)
-        st.session_state.trip_dist = c1.number_input("Distance", value=float(st.session_state.trip_dist))
-        st.session_state.trip_duration = c2.number_input("Temps", value=float(st.session_state.trip_duration))
+        st.session_state.trip_dist = c1.number_input(
+            "Distance", value=float(st.session_state.trip_dist)
+        )
+        st.session_state.trip_duration = c2.number_input(
+            "Temps", value=float(st.session_state.trip_duration)
+        )
     else:
         if st.session_state.trip_dist > 0:
             m1, m2 = st.columns(2)
