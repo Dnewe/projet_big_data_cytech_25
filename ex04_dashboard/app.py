@@ -77,6 +77,8 @@ elif menu == "Analyse Temporelle":
 
 elif menu == "Analyse Geographique":
     options = {
+        "nombre courses": {"col": "COUNT(f.total_amount)",
+                           "label": "nombre de course"},
         "Revenu total": {"col": "SUM(f.total_amount)",
                          "label": "Total Revenue"},
         "Revenu moyen": {"col": "AVG(f.total_amount)",
@@ -95,7 +97,7 @@ elif menu == "Analyse Geographique":
     with col_sel2:
         flux_type = st.radio("Type de flux",
                              ["Départ (Pickup)", "Arrivée (Dropoff)"])
-        loc_col = "pulocationid" if "Départ" in flux_type else "dolocationid"
+        loc_col = "PULocationID" if "Départ" in flux_type else "DOLocationID"
     with col_sel3:
         view_level = st.radio("Niveau de détail",
                               ["Zone", "Quartier (Borough)"])

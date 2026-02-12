@@ -112,13 +112,13 @@ if __name__ == "__main__":
     X = {
         'hour': 3, 'day': 5, 'duration': 5.0,
         'PULocationID': 100, 'DOLocationID': 100, 'passenger_count': 1,
-        'RatecodeID': 1, 'VendorID': 7, 'trip_distance': 1.0
+        'RatecodeID': 1, 'VendorID': 1, 'trip_distance': 1.0
     }
 
     try:
         check_data(X)
         artifact = load_model()
         x = inferencence(X, artifact)
-        print(f"resulats : {x[0]:.2f $}")
+        print(f"resulats : {x[0]:.2f}$")
     except Exception as e:
         print(e)

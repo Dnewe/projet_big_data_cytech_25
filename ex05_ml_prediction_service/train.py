@@ -101,8 +101,12 @@ def train():
 
     predictions = model.predict(X_test)
     rmse = np.sqrt(mean_squared_error(y_test, predictions))
-
+    mean_final_amount = y.mean()
     print(f"Test rmse: {rmse:.2f}")
+    mean_final_amount = y.mean()
+    print(f"moyenne revenus = {mean_final_amount:.2f} $")
+    print(f"Le rmse représente {(rmse/mean_final_amount)*100:.2f}% de la "
+          f"moyenne revenue")
 
     # On a un problème lors de l'inférence le modèle ne se souvient plus
     # des structiures des donnnées alors il faut sauvegarder dans le modèle

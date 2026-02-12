@@ -116,7 +116,7 @@ def get_query_borough(loc_col, metric_sql):
             COUNT(*) as volume,
             {metric_sql} as selected_metric
         FROM fact_trips f
-        JOIN dim_location l ON f.{loc_col} = l.location_id
+        JOIN dim_location l ON f."{loc_col}" = l.location_id
         JOIN dim_borough b ON l.borough_id = b.borough_id
         GROUP BY b.borough_name
         ORDER BY volume DESC
@@ -150,7 +150,7 @@ def get_query_map(loc_col, metric_sql):
             AVG(f.tip_amount) as tip_avg,
             {metric_sql} as metric_couleur
         FROM fact_trips f
-        JOIN dim_location l ON f.{loc_col} = l.location_id
+        JOIN dim_location l ON f."{loc_col}" = l.location_id
         JOIN dim_borough b ON l.borough_id = b.borough_id
         GROUP BY l.location_id, l.zone_name, b.borough_name, b.borough_id
     """
