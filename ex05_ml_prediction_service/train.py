@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
-
+from pathlib import Path
 # Config minio
 
 url = "http://localhost:9000"
@@ -12,7 +12,6 @@ key = "minio"
 secret = "minio123"
 bucket = "nyc-raw-branch-1"
 file = "data"
-from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
 MODEL_PATH = BASE_DIR / "../models"
@@ -113,7 +112,7 @@ def train():
         "columns": X_train.columns.tolist()
     }
 
-    joblib.dump(artifacts, MODEL_PATH/"nyc_taxi_model_notips.pkl")
+    joblib.dump(artifacts, MODEL_PATH / "nyc_taxi_model_notips.pkl")
     print("Saved model to mdoels/nyc_taxi_model_notips.pkl")
 
 

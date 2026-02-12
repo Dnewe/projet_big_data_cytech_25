@@ -2,9 +2,9 @@ import joblib
 import pandas as pd
 from pathlib import Path
 
-
 BASE_DIR = Path(__file__).parent
-MODEL_PATH = BASE_DIR/"../models/nyc_taxi_model_notips.pkl"
+MODEL_PATH = BASE_DIR / "../models/nyc_taxi_model_notips.pkl"
+
 
 def load_model():
     """Load the model artifacts from a pickle file."""
