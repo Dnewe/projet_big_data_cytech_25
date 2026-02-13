@@ -56,7 +56,7 @@ object Branch2 extends App {
     col("improvement_surcharge").cast("double"),
     col("total_amount").cast("double"),
     col("congestion_surcharge").cast("double"),
-    col("Airport_fee").cast("double") // Correction de la casse
+    col("Airport_fee").cast("double")
   ).distinct()
 
 

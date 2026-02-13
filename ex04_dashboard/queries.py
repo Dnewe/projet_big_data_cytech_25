@@ -175,7 +175,7 @@ def get_query_rate(metric_sql):
     return f"""
         SELECT r.description, COALESCE({metric_sql}, 0) as value
         FROM Dim_RateCode r
-        LEFT JOIN Fact_Trips f ON r.RatecodeID = f.RatecodeID
+        LEFT JOIN Fact_Trips f ON r.ratecodeid = f."RatecodeID"
         GROUP BY r.description
         ORDER BY value DESC
     """
@@ -198,7 +198,7 @@ def get_query_vendor(metric_sql):
     return f"""
         SELECT v.vendor_name, COALESCE({metric_sql}, 0) as value
         FROM Vendor v
-        LEFT JOIN Fact_Trips f ON v.vendorID = f.VendorID
+        LEFT JOIN Fact_Trips f ON v."vendorid" = f."VendorID"
         GROUP BY v.vendor_name
         ORDER BY value DESC
     """
@@ -262,7 +262,7 @@ def get_query_profit():
                       f.mta_tax +
                       f.improvement_surcharge +
                       f.congestion_surcharge +
-                      f.Airport_fee
+                      f."Airport_fee"
                       ))              as benefice_moyen
            FROM Fact_Trips f
                     JOIN Dim_Time t
