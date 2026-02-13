@@ -28,5 +28,5 @@
  	
 3 parts :
 principal
-location     ====> stars not flake gemini says add another parts in location
+location     ====> stars not flake maybe add another parts in location
 time
