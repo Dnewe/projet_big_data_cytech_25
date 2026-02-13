@@ -87,7 +87,7 @@ def get_route_distanc(lat1, lon1, lat2, lon2):
 
 geo_df, lookup_df = load_geo_data()
 
-st.title("Template : Titre Principal")
+st.title("Prédiction -- NYC Yellow Taxi")
 st.markdown("---")
 
 st.sidebar.header("Paramètre")

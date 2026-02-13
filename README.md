@@ -9,6 +9,8 @@
 
 Ce projet implémente une architecture Big Data complète pour le traitement et l'analyse des données de trajets des taxis jaunes de New York. L'objectif est de déployer une pipeline allant de la collecte brute sur un Data Lake jusqu'à la prédiction de prix via un modèle de Machine Learning.
 
+
+Notre rapport entier se trouve dans reports/
 ## Architecture Technique
 
 * **Data Lake** : Minio (stockage S3 local).
@@ -51,6 +53,9 @@ Ce projet implémente une architecture Big Data complète pour le traitement et 
 │   └── 2.0-VA-features-exploration-ML.ipynb
 ├── pyproject.toml              # Gestion des dépendances Python (uv)
 ├── uv.lock
+├── reports/
+│   ├──BigD_vAndre_yBogaer_eDano.pdf # Notre rapport
+│   └──image_report/            #Contient toutes les images de notre rapport
 └── README.md
 
 ```
@@ -112,3 +117,4 @@ Tester le modèle :
 uv run python ex05_ml_prediction_service/test.py
 ```
 et rentrer dans le main les données pour le test
+
